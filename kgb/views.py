@@ -51,7 +51,7 @@ def install_docker(request, domain, password):
         # check that the response is empty because in YUNOHOST world, a success
         # is indicated by an empty response that doesn't even respect HTTP
         # standard because YOLO SWAG
-        if e.reason.line != "":
+        if e.args[0].reason.line != "":
             raise e
     else:
         if response.status_code != 200:
