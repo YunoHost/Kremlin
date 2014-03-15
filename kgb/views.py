@@ -45,6 +45,18 @@ def install_docker(request, domain, password):
         return HttpResponse("ça a merdé caca prout")
 
     print "Post on the api"
-    requests.post("https://%s/ynhapi/postinstall" % ip, data={"domain": domain, "password": password}, verify=False)
+    try:
+        response = requests.post("https://%s/ynhapi/postinstall" % ip, data={"domain": domain, "password": password}, verify=False)
+    except requests.ConnectionError as e:
+        # check that the response is empty because in YUNOHOST world, a success
+        # is indicated by an empty response that doesn't even respect HTTP
+        # standard because YOLO SWAG
+        if e.reason.line != "":
+            raise e
+    else:
+        if response.status_code != 200:
+            print response.content
+            print response.json()
+            return HttpResponse(u"Sa mère ça a merdé")
 
     return HttpResponse(u"Youpi, ça a marché ! %s" % ip)
