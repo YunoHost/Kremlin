@@ -7,7 +7,7 @@ RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install apt-utils -qq -y --f
 RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install git -qq -y --force-yes
 RUN git clone https://github.com/YunoHost/install_script /tmp/install_script
 
-RUN cd /tmp/install_script && LC_ALL=C DEBIAN_FRONTEND=noninteractive ./autoinstall_yunohostv2 || :
+RUN cd /tmp/install_script && LC_ALL=C DEBIAN_FRONTEND=noninteractive ./autoinstall_yunohostv2 test || :
 RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install ssh -qq -y --force-yes
 RUN rm -rf /var/lib/apt/lists/*
 RUN apt-get clean
