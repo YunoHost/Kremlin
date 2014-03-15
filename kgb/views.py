@@ -28,7 +28,7 @@ def check_container_is_ready_to_be_installed(ip):
     return False
 
 
-def pouet(request, domain, password):
+def install_docker(request, domain, password):
     print "create docker client"
     client = Client(base_url='unix://var/run/docker.sock', version='1.6', timeout=10)
     print "create container"
