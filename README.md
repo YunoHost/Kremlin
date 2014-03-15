@@ -24,7 +24,7 @@ Kremlin is the homemade YunoHost VPS deployer based on [Docker](https://www.dock
  4. Run your first YunoHost instance (to test)
  
    ```bash
-      docker run -d yunohost /sbin/init
+      docker run -t -d yunohost /sbin/init
    ```
 
  5. Run postinstall manually (to test)

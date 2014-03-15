@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#########################################
+# TO BE PLACED IN /etc/network/if-up.d/ #
+#########################################
+
+set -e
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+### Init
+
+# Emty current tables
+iptables -P INPUT DROP
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -F
+iptables -X
+iptables -t filter -F
+iptables -t nat -F
+iptables -t filter -X
+iptables -t nat -X
+
+# Allow SSH
+iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT
+
+# Do not break existing connections
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Allow IP to a docker container (repeat as many times as containers)
+#####################################################################
+# 
+# iptables -t nat -A PREROUTING -d <public.ip.addr> -j DNAT --to-destination <container.ip.addr>
+# iptables -t nat -A POSTROUTING -s '<container.ip.addr>/32' -o eth0 -j SNAT --to-source <public.ip.addr>
+#
+#####################################################################
+
+# I allow local IP here (192.168.2.11) since I test locally
+iptables -t nat -A PREROUTING -d 192.168.2.11 -j DNAT --to-destination 172.17.0.2 
+iptables -t nat -A POSTROUTING -s '172.17.0.2/32' -o eth0 -j SNAT --to-source 192.168.2.11
+
+# May be useful
+#iptables -A POSTROUTING -s '172.17.0.0/24' -t nat -j MASQUERADE
+
+# Allow ping
+iptables -t filter -A INPUT -p icmp -j ACCEPT
+
+# Synflood protection
+iptables -A FORWARD -p tcp --syn -m limit --limit 1/s -j ACCEPT
+
+# Ping-of-death protection
+iptables -A FORWARD -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+
+# SSh bruteforce protection
+iptables -I INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
+
+### End of rules ###
+
+# Forbid everything else
+#iptables -A INPUT -i eth0 -j REJECT
+#iptables -A FORWARD -i eth0 -j REJECT
+#iptables -t filter -P INPUT DROP
+#iptables -t filter -P FORWARD DROP
+
+/etc/init.d/fail2ban restart
