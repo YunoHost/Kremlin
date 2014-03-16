@@ -51,7 +51,7 @@ Kremlin is the homemade YunoHost VPS deployer based on [Docker](https://www.dock
     rm db.sqlite3
     python manage.py syncdb --noinput
     docker ps | grep yunohost | awk '{print $1}' | xargs -l docker stop &> /dev/null &
-    iptables -t NAT -F
+    iptables -t nat -F
    ```
 
  2. Start Django development server
