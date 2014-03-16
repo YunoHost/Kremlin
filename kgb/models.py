@@ -10,7 +10,7 @@ from .utils import check_container_is_ready_to_be_installed
 class Container(models.Model):
     ip = models.GenericIPAddressField(protocol="IPv4", unique=True, null=True)
     ip6 = models.GenericIPAddressField(protocol="IPv6", unique=True, null=True)
-    docker_id = models.CharField(max_length=255, unique=True)
+    docker_id = models.CharField(max_length=255, unique=True, null=True)
     domain = models.CharField(max_length=255, unique=True)
     created = models.DateTimeField(auto_now_add=True)
 
