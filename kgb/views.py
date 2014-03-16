@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import os
 import requests
 from time import sleep
 #from django.shortcuts import render
@@ -58,5 +59,8 @@ def install_docker(request, domain, password):
             print response.content
             print response.json()
             return HttpResponse(u"Sa mère ça a merdé")
+
+    os.system("iptables -t nat -A PREROUTING -d 192.168.2.11 -j DNAT --to-destination %s" % ip)
+    os.system("iptables -t nat -A POSTROUTING -s '%s/32' -o eth0 -j SNAT --to-source 192.168.2.11" % ip)
 
     return HttpResponse(u"Youpi, ça a marché ! %s" % ip)
