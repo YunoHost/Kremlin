@@ -62,4 +62,4 @@ Kremlin is the homemade YunoHost VPS deployer based on [Docker](https://www.dock
     python manage.py runserver 0.0.0.0:8000
    ```
 
-  3. Debug & go to 1 :)
+ 3. Debug & go to 1 :)
