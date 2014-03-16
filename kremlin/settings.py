@@ -80,3 +80,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+AVAILABLE_PUBLIC_IPS = (
+    "192.168.2.11",
+    "192.168.2.12",
+    "192.168.2.13",
+)
