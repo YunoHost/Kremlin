@@ -4,6 +4,7 @@ import os
 import requests
 from docker import Client
 from django.db import models
+from django.conf import settings
 from .utils import check_container_is_ready_to_be_installed
 
 
@@ -15,13 +16,26 @@ class Container(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def create_new_container(klass, domain, password):
-        #ip = klass.get_available_ip()
-        docker_id = klass.create_docker(domain, password)
-        return klass.objects.create(ip="123.123.123.123", docker_id=docker_id, domain=domain)
+    def get_available_ips(klass):
+        used_ips = set([x.ip for x in klass.objects.all()])
+        available_public_ips = set(settings.AVAILABLE_PUBLIC_IPS)
+        return sorted(list(available_public_ips - used_ips))
 
     @classmethod
-    def create_docker(self, domain, password):
+    def create_new_container(klass, domain, password):
+        # XXX here, possible race condition where 2 thread get the same ip then
+        # try to save in db, the db will raise an integrity error on the
+        # slowest thread because the ip column is unique
+        # FIXME use something like "with thread.lock: ..."
+        ip = klass.get_available_ips()[0]
+        print "Use the ip:", ip
+        container = klass.objects.create(ip=ip, domain=domain, docker_id=None)
+        docker_id = container.create_docker(domain=domain, password=password, public_ip=ip)
+        container.docker_ip = docker_id
+        container.save()
+        return container
+
+    def create_docker(self, domain, password, public_ip):
         print "create docker client"
         client = Client(base_url='unix://var/run/docker.sock', version='1.6', timeout=10)
         print "create container"
