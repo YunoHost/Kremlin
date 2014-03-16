@@ -17,20 +17,46 @@ Kremlin is the homemade YunoHost VPS deployer based on [Docker](https://www.dock
  3. Build the YunoHost container
  
    ```bash
-      cd /root/Kremlin
+      cd /root/Kremlin/docker
       docker build -t yunohost .
    ```
 
- 4. Run your first YunoHost instance (to test)
+ 4. Install and run virtualenv
  
    ```bash
-      docker run -t -d yunohost /sbin/init
+      apt-get install python-pip
+      pip install virtualenv
+      cd /root/docker
+      virtualenv ve
+      source ve/bin/activate
    ```
 
- 5. Run postinstall manually (to test)
+ 5. Install Kremlin's dependencies and synchronize database (SQLite by default)
  
    ```bash
-      curl -X POST -k https://ip.of.the.container/ynhapi/postinstall -d "domain=mydomain.test&password=myPassword"
+      pip install -r requirements.txt
+      python manage.py syncdb
    ```
 
- 6. That's it (for now)! :p
+ 6. Edit public IP range to allow to containers
+
+   ```bash
+      vim kremlin/settings.py   # Parameter called "AVAILABLE_PUBLIC_IPS"
+   ```
+
+### Development workflow
+
+  1. Clean database, stop docker containers and flush iptables
+    ```bash
+       rm db.sqlite3
+       python manage.py syncdb --noinput
+       docker ps | grep yunohost | awk '{print $1'} | xargs -l docker stop &> /dev/null &
+       iptables -t NAT -F
+    ```
+
+  2. Start Django development server
+    ```bash
+       python manage.py runserver 0.0.0.0:8000
+    ```
+
+  3. Debug & go to 1 :)
