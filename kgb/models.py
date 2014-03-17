@@ -64,7 +64,7 @@ class Container(models.Model):
                 # TODO raise
                 #return HttpResponse(u"Sa mère ça a merdé")
 
-        os.system("iptables -t nat -A PREROUTING -d 192.168.2.11 -j DNAT --to-destination %s" % ip)
-        os.system("iptables -t nat -A POSTROUTING -s '%s/32' -o eth0 -j SNAT --to-source 192.168.2.11" % ip)
+        os.system("iptables -t nat -A PREROUTING -d %s -j DNAT --to-destination %s" % (public_ip, ip))
+        os.system("iptables -t nat -A POSTROUTING -s '%s/32' -o eth0 -j SNAT --to-source %s" % (ip, public_ip))
 
         return container["Id"]
