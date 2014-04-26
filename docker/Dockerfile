@@ -1,4 +1,4 @@
-FROM        tianon/debian:wheezy
+FROM        debian:wheezy
 MAINTAINER  kload "kload@kload.fr"
 
 RUN rm /usr/sbin/policy-rc.d
